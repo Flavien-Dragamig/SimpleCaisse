@@ -6,7 +6,8 @@ coupure par coupure, navigation au pavé numérique, suivi des encaissements pen
 l'événement, réconciliation en fin d'événement.
 
 ## État
-- [x] `index.html` autonome, 312 ko, zéro dépendance réseau : polices (Bricolage
+- [x] `SimpleCaisse.html` autonome (plus un `index.html` de redirection pour
+      l'hébergement à la racine), zéro dépendance réseau : polices (Bricolage
       Grotesque, IBM Plex Sans, IBM Plex Mono, subsets latin woff2 base64) et
       bibliothèque QR (qrcode-generator 1.4.4, MIT) intégrées dans la page.
       Ouvrable par double-clic ou déposable sur n'importe quel serveur statique.

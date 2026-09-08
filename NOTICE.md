@@ -1,6 +1,6 @@
 # Composants tiers
 
-SimpleCaisse est distribué sous licence MIT (voir LICENSE). Le fichier `index.html`
+SimpleCaisse est distribué sous licence MIT (voir LICENSE). Le fichier `SimpleCaisse.html`
 embarque les composants suivants, chacun sous sa propre licence.
 
 ## qrcode-generator 1.4.4

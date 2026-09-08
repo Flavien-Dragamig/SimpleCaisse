@@ -11,9 +11,11 @@ de l'appareil.
 
 ## Utilisation
 
-Téléchargez [`index.html`](index.html) et ouvrez-le dans un navigateur. C'est tout.
-Le fichier se dépose aussi tel quel sur n'importe quel hébergement statique
-(GitHub Pages, un dossier sur un serveur, une clé USB).
+Téléchargez [`SimpleCaisse.html`](SimpleCaisse.html) (bouton **Download raw file** en haut
+à droite du fichier) et ouvrez-le dans un navigateur. C'est tout : pas d'installation, pas de
+compte. Le fichier se garde sur le bureau, se transmet par courriel ou sur une clé USB, et se
+dépose tel quel sur n'importe quel hébergement statique. Un `index.html` de redirection est
+fourni pour l'usage à la racine d'un domaine ou sur GitHub Pages.
 
 Deux entrées :
 
@@ -69,7 +71,7 @@ exportez le CSV pour conserver une trace.
 
 ## Sous le capot
 
-Un fichier de 316 ko, sans build, sans installation, sans cadriciel. Le code de
+Un fichier de 316 ko, `SimpleCaisse.html`, sans build, sans installation, sans cadriciel. Le code de
 l'application est du HTML, du CSS et du JavaScript écrits à la main. Tout le reste est
 embarqué dans le fichier, ce qui permet à la page de fonctionner à l'identique sans
 connexion : aucune requête réseau n'est émise à l'ouverture ni pendant l'usage.
