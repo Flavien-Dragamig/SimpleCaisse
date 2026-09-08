@@ -1017,10 +1017,7 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
     var e = ev();
     $("barCtx").textContent = (S.screen !== "accueil" && e) ? e.name + " · " + frDate(e.date) : "";
     if (S.screen === "comptage") {
-      var d = DENOMS[S.idx];
-      $("barStep").textContent = d.kind === "note"
-        ? "Billet " + (S.idx + 1) + " sur " + NB_NOTES
-        : "Pièce " + (S.idx - NB_NOTES + 1) + " sur " + (DENOMS.length - NB_NOTES);
+      $("barStep").textContent = (S.idx + 1) + " sur " + DENOMS.length;
     } else {
       $("barStep").textContent = "";
     }
