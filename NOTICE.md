@@ -20,3 +20,8 @@ Sous SIL Open Font License 1.1, incluses en woff2 base64, sous-ensemble latin :
 
 Aucun autre composant tiers n'est utilisé : pas de cadriciel, pas d'image externe,
 pas d'appel réseau.
+
+---
+
+SimpleCaisse, [Studio Dragamig](https://www.dragamig.fr),
+[Flavien Mauny](https://www.linkedin.com/in/flavienmauny/).

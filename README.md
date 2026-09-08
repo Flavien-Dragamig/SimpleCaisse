@@ -96,5 +96,5 @@ rappelées dans [NOTICE.md](NOTICE.md).
 
 ---
 
-Studio Dragamig, Flavien Mauny.
+[Studio Dragamig](https://www.dragamig.fr), [Flavien Mauny](https://www.linkedin.com/in/flavienmauny/).
 Développé avec l'aide de Claude Code d'Anthropic.
