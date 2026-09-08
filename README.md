@@ -1,0 +1,70 @@
+# SimpleCaisse
+
+Suivi de caisse pour les activités associatives : buvette, brocante, loto, kermesse.
+Une seule page HTML, aucune dépendance, aucun compte, aucune connexion.
+
+![Écran de comptage](docs/apercu-comptage.png)
+
+## Utilisation
+
+Téléchargez [`index.html`](index.html) et ouvrez-le dans un navigateur. C'est tout.
+Le fichier se dépose aussi tel quel sur n'importe quel hébergement statique
+(GitHub Pages, un dossier sur un serveur, une clé USB).
+
+Deux entrées :
+
+- **Simple comptage** : compter les billets et les pièces, obtenir le total. Rien n'est enregistré.
+- **Suivi d'événement** : fond de caisse, encaissements au fil de l'activité, clôture, réconciliation.
+
+## Ce que ça fait
+
+**Comptage guidé.** Une coupure par écran, du billet de 500 au centime. Chaque billet et
+chaque pièce est dessiné à l'échelle de ses dimensions réelles, on reconnaît la coupure
+sans lire. On tape le nombre, `Entrée` valide et passe à la suivante, le total se fait seul.
+
+**Encaissements.** Client, objet, montant, moyen de paiement (espèces, carte, chèque,
+HelloAsso, autre). Un montant négatif compte comme une sortie de caisse. Les noms et
+libellés déjà saisis sont proposés à la frappe suivante.
+
+**Réconciliation.** À la clôture : fond de caisse + encaissements en espèces − sorties
+= espèces attendues, comparées aux espèces réellement comptées. L'écart est qualifié
+(caisse juste, excédent, manquant), avec en regard le chiffre d'affaires tous moyens,
+les dépenses et le montant à déposer en banque.
+
+**Paiement en ligne.** Un lien de billetterie ou de paiement (HelloAsso ou autre) par
+événement, affichable en QR code plein écran à poser sur la table, imprimable en affichette.
+
+**Sorties.** Impression avec cases de visa (comptée par, vérifiée par) et export CSV de
+l'événement complet, prêt à ouvrir dans un tableur français.
+
+![Suivi d'un événement](docs/apercu-evenement.png)
+
+## Raccourcis clavier
+
+Tout se fait au clavier ou au pavé numérique, sans quitter les mains du comptage.
+
+| Écran | Touches |
+|---|---|
+| Accueil | `E` suivi d'événement · `S` simple comptage · flèches pour parcourir la liste |
+| Événement | `P` saisir un encaissement · `F` fond de caisse · `C` clôturer · `M` modifier · `Q` QR de paiement · `Échap` retour |
+| Comptage | `0` à `9` · `Entrée` valide et enchaîne · `Retour arrière` corrige · flèches pour naviguer · `Échap` voir le total |
+| Bilan | `Entrée` valider · `P` encaissements · `C` clôture · `R` reprendre le comptage |
+
+Un pavé numérique est également affiché à l'écran pour l'usage sur tablette.
+
+## Vos données
+
+Tout reste dans le navigateur de l'appareil (`localStorage`). Rien n'est envoyé nulle part,
+il n'y a ni serveur ni statistiques. Effacer les données du site efface les événements :
+exportez le CSV pour conserver une trace.
+
+## Sous le capot
+
+Un fichier de 316 ko, sans build ni installation. Les polices (Bricolage Grotesque,
+IBM Plex Sans, IBM Plex Mono) et la génération des QR codes
+([qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator), licence MIT)
+sont intégrées à la page : elle fonctionne à l'identique sans connexion.
+
+---
+
+Studio Dragamig, Flavien Mauny.
