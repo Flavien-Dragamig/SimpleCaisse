@@ -418,15 +418,8 @@
   .tally-x { font-size: 19px; color: var(--ink-3); }
   .tally-sub { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 19px; color: var(--ink-2); }
   .tally-sub b { color: var(--ink); font-weight: 600; }
-  .tally-run {
-    margin-top: 12px; padding-top: 11px;
-    border-top: 1px solid var(--line-2);
-    display: flex; align-items: baseline; gap: 8px;
-    font-size: 13px; color: var(--ink-3);
-  }
-  .tally-run b { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 600; color: var(--ink); }
 
-  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 290px; margin-top: 16px; }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 290px; margin-top: 22px; }
   .pad button {
     background: var(--card-2); border: 1px solid var(--line); border-radius: 8px;
     padding: 11px 0; font-family: var(--font-num); font-size: 17px; font-weight: 500; cursor: pointer;
@@ -685,7 +678,6 @@
             </div>
             <div class="tally-eq"><span class="tally-sub">= <b id="tallySub">0,00 €</b></span></div>
           </div>
-          <div class="tally-run">Total compté jusqu'ici <b id="tallyRun">0,00 €</b></div>
           <div class="pad" id="pad"></div>
         </div>
       </div>
@@ -1424,17 +1416,7 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
     ti.textContent = val === "" ? "0" : val;
     ti.classList.toggle("blank", val === "");
     $("tallySub").textContent = euros(parseInt(val || "0", 10) * d.c);
-    $("tallyRun").textContent = euros(running());
     renderBar();
-  }
-
-  function running() {
-    var t = 0;
-    for (var i = 0; i < DENOMS.length; i++) {
-      var n = (i === S.idx && S.buffer !== "") ? parseInt(S.buffer, 10) : S.counts[i];
-      t += (n || 0) * DENOMS[i].c;
-    }
-    return t;
   }
 
   function commit() {
