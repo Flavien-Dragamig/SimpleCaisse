@@ -455,7 +455,7 @@
   .ledger { display: flex; flex-direction: column; gap: 1px; }
   .led-row { display: flex; align-items: baseline; gap: 12px; padding: 5px 0; }
   .led-row span { color: var(--ink-2); }
-  .led-row b { margin-left: auto; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .led-row b { margin-left: auto; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
   .led-row.sum { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 9px; }
   .led-row.sum span { color: var(--ink); font-weight: 600; }
   .led-row.result { border-top: 2px solid var(--line); margin-top: 8px; padding-top: 11px; }
@@ -514,6 +514,14 @@
     .bar, .hints, .no-print, .toast, .payline, .del-cell { display: none !important; }
     .panel, .step { border: 1px solid #ccc; box-shadow: none; }
     .paytable-wrap { max-height: none; overflow: visible; }
+    /* la largeur d'une page est sous le point de rupture mobile : on rétablit
+       les dispositions en colonnes pour l'impression */
+    .steps { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .step { padding: 10px 12px; page-break-inside: avoid; break-inside: avoid; }
+    .step-val { font-size: 19px; }
+    .step-note { font-size: 11px; }
+    .cols, .recon .cols2 { grid-template-columns: 1fr 1fr; gap: 22px; }
+    .panel { page-break-inside: avoid; break-inside: avoid; }
     .signatures { display: flex; gap: 50px; margin-top: 40px; font-size: 12px; color: #333; }
     .signatures div { flex: 1; border-top: 1px solid #999; padding-top: 6px; }
     body.qr-open .app { display: none !important; }
