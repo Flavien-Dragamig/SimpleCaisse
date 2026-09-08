@@ -89,7 +89,8 @@ les pièces et les QR codes sont dessinés en SVG par la page, sans image extern
 ## Licence
 
 MIT, voir [LICENSE](LICENSE). Réutilisation, modification et usage commercial libres,
-en conservant la mention de copyright.
+en conservant la mention de copyright. Les licences des composants embarqués sont
+rappelées dans [NOTICE.md](NOTICE.md).
 
 ---
 
