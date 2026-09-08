@@ -6,7 +6,7 @@ coupure par coupure, navigation au pavé numérique, ouverture/clôture d'évén
 calcul automatique du CA en espèces.
 
 ## État
-- [x] `index.html` autonome (aucune dépendance hors polices Google, fonctionne en local
+- [x] `index.html` autonome (zéro dépendance externe, polices comprises : fonctionne hors ligne, en local
       par double-clic ou hébergé sur n'importe quel serveur statique).
 - [x] Écran accueil : nom d'activité, date, mode Ouverture (`O`) / Clôture (`C`).
 - [x] Comptage : 15 écrans (7 billets, 8 pièces), un par coupure, visuel aux couleurs
