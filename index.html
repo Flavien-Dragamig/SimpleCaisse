@@ -211,6 +211,17 @@
     white-space: nowrap;
   }
 
+  .colophon {
+    display: flex; flex-direction: column; gap: 7px;
+    max-width: none;
+    font-size: 12.5px; line-height: 1.55; color: var(--ink-3);
+  }
+  .colophon p { max-width: 92ch; }
+  .colophon p { margin: 0; }
+  .colophon strong { color: var(--ink-2); font-weight: 600; }
+  .colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .colophon a:hover { color: var(--accent); }
+
   /* ---------- liste des événements ---------- */
   .list { padding: 18px 22px 20px; }
   .ev-row {
@@ -568,6 +579,18 @@
         <h2 class="section">Événements</h2>
         <div id="evList"></div>
       </div>
+
+      <footer class="panel list colophon">
+        <h2 class="section">À propos</h2>
+        <p><strong>SimpleCaisse</strong>, Studio Dragamig, Flavien Mauny. Licence MIT,
+        <a href="https://github.com/Flavien-Dragamig/SimpleCaisse">code source sur GitHub</a>.</p>
+        <p>Tout est embarqué dans ce fichier, la page ne fait aucun appel réseau et ne transmet
+        aucune donnée : <a href="https://github.com/kazuhikoarase/qrcode-generator">qrcode-generator</a>
+        1.4.4 de Kazuhiko Arase (licence MIT) pour les QR codes ; les polices Bricolage Grotesque
+        de Mathieu Triay, IBM Plex Sans et IBM Plex Mono d'IBM (SIL Open Font License 1.1).
+        Aucun autre composant tiers, aucun cadriciel.</p>
+        <p>Développé avec l'aide de Claude Code d'Anthropic.</p>
+      </footer>
     </section>
 
     <!-- ================= ÉVÉNEMENT ================= -->

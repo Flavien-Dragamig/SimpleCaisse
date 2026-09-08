@@ -69,10 +69,22 @@ exportez le CSV pour conserver une trace.
 
 ## Sous le capot
 
-Un fichier de 316 ko, sans build ni installation. Les polices (Bricolage Grotesque,
-IBM Plex Sans, IBM Plex Mono) et la génération des QR codes
-([qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator), licence MIT)
-sont intégrées à la page : elle fonctionne à l'identique sans connexion.
+Un fichier de 316 ko, sans build, sans installation, sans cadriciel. Le code de
+l'application est du HTML, du CSS et du JavaScript écrits à la main. Tout le reste est
+embarqué dans le fichier, ce qui permet à la page de fonctionner à l'identique sans
+connexion : aucune requête réseau n'est émise à l'ouverture ni pendant l'usage.
+
+### Composants intégrés
+
+| Composant | Rôle | Licence |
+|---|---|---|
+| [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) 1.4.4, Kazuhiko Arase | Génération des QR codes de paiement | MIT |
+| [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque), Mathieu Triay | Titres et chiffres des coupures | SIL OFL 1.1 |
+| [IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans), IBM | Texte de l'interface | SIL OFL 1.1 |
+| [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono), IBM | Montants et colonnes chiffrées | SIL OFL 1.1 |
+
+Les polices sont incluses en woff2 base64, restreintes au sous-ensemble latin. Les billets,
+les pièces et les QR codes sont dessinés en SVG par la page, sans image externe.
 
 ## Licence
 
