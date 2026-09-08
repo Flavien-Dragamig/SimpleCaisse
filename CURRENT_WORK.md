@@ -23,7 +23,8 @@ l'événement, réconciliation en fin d'événement.
       plein écran et imprimable pour être posée sur la table.
 - [x] Comptage : 15 écrans, un par coupure. Billets et pièces dessinés en SVG à
       l'échelle des dimensions réelles (160 × 82 mm pour un 500, 16,25 mm pour un
-      centime), avec cannelures, fleur espagnole de la 20 cent et bimétal.
+      centime), avec cannelures, fleur espagnole de la 20 cent et bimétal. Le
+      visuel parle seul : ni étiquette « billets de », ni cote en millimètres.
 - [x] Clavier : `0-9`, `Entrée` valide et enchaîne, `⌫` corrige, `↑`/`↓` navigue,
       `Échap` ouvre le bilan. Depuis le bilan : `Entrée` valide, `P` encaissements,
       `C` clôture, `R` reprendre. Pavé tactile à l'écran pour tablette.

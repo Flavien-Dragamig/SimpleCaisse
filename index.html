@@ -396,11 +396,9 @@
     gap: 26px;
     padding: 26px 30px 30px;
   }
-  .stage { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-  .stage-label { font-size: 11.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .stage { display: flex; flex-direction: column; align-items: center; }
   .stage-art { width: 100%; display: grid; place-items: center; }
   .stage-art svg { width: 100%; max-width: 360px; height: auto; display: block; filter: drop-shadow(0 10px 14px rgba(17, 20, 26, .16)); }
-  .stage-dim { font-family: var(--font-num); font-size: 11.5px; color: var(--ink-3); }
 
   .tally { display: flex; flex-direction: column; gap: 4px; }
   .tally-eq { display: flex; align-items: baseline; gap: 10px; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
@@ -676,9 +674,7 @@
       <div class="rail" id="rail"></div>
       <div class="panel count">
         <div class="stage">
-          <span class="stage-label" id="stageLabel"></span>
           <div class="stage-art" id="stageArt"></div>
-          <span class="stage-dim" id="stageDim"></span>
         </div>
         <div>
           <div class="tally">
@@ -1423,11 +1419,7 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
       return '<i class="' + cls + '" style="--seg:' + col + '"></i>';
     }).join("");
 
-    $("stageLabel").textContent = d.kind === "note" ? "Billets de" : "Pièces de";
     $("stageArt").innerHTML = denomSVG(d);
-    $("stageDim").textContent = d.kind === "note"
-      ? d.w + " × " + d.h + " mm"
-      : String(d.d).replace(".", ",") + " mm de diamètre";
 
     $("tallyUnit").textContent = d.label;
     var val = S.buffer !== "" ? S.buffer : (S.touched[S.idx] ? String(S.counts[S.idx]) : "");
