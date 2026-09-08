@@ -1,9 +1,13 @@
 # SimpleCaisse
 
-Suivi de caisse pour les activités associatives : buvette, brocante, loto, kermesse.
-Une seule page HTML, aucune dépendance, aucun compte, aucune connexion.
+Le bordereau de caisse d'un événement associatif, de l'ouverture à la reddition de comptes.
+Fond de caisse, encaissements de la journée, comptage de clôture, écart de caisse justifié
+et signé. Buvette, brocante, loto, kermesse.
 
-![Écran de comptage](docs/apercu-comptage.png)
+Une seule page HTML : aucun compte, aucune installation, aucune connexion, rien qui sorte
+de l'appareil.
+
+![Suivi d'un événement](docs/apercu-evenement.png)
 
 ## Utilisation
 
@@ -18,26 +22,30 @@ Deux entrées :
 
 ## Ce que ça fait
 
+**Réconciliation de fin d'événement.** C'est le coeur de l'outil. Fond de caisse
++ encaissements en espèces − sorties = espèces attendues, comparées aux espèces
+réellement comptées. L'écart est qualifié (caisse juste, excédent, manquant), avec en
+regard le chiffre d'affaires tous moyens, les dépenses et le montant à déposer en banque.
+La billetterie en ligne vous dit ce qui a été vendu sur internet ; elle ne vous dit pas
+si la caisse tombe juste. C'est ce chaînon qui manque partout.
+
+**Justificatif signé.** Impression avec cases de visa (comptée par, vérifiée par) et export
+CSV de l'événement complet, prêt à ouvrir dans un tableur français. De quoi archiver la
+recette d'une buvette et la présenter au trésorier ou en assemblée générale.
+
+**Encaissements au fil de l'activité.** Client, objet, montant, moyen de paiement (espèces,
+carte, chèque, HelloAsso, autre). Un montant négatif compte comme une sortie de caisse. Les
+noms et libellés déjà saisis sont proposés à la frappe suivante.
+
 **Comptage guidé.** Une coupure par écran, du billet de 500 au centime. Chaque billet et
 chaque pièce est dessiné à l'échelle de ses dimensions réelles, on reconnaît la coupure
 sans lire. On tape le nombre, `Entrée` valide et passe à la suivante, le total se fait seul.
-
-**Encaissements.** Client, objet, montant, moyen de paiement (espèces, carte, chèque,
-HelloAsso, autre). Un montant négatif compte comme une sortie de caisse. Les noms et
-libellés déjà saisis sont proposés à la frappe suivante.
-
-**Réconciliation.** À la clôture : fond de caisse + encaissements en espèces − sorties
-= espèces attendues, comparées aux espèces réellement comptées. L'écart est qualifié
-(caisse juste, excédent, manquant), avec en regard le chiffre d'affaires tous moyens,
-les dépenses et le montant à déposer en banque.
+Un bénévole qui n'a jamais vu l'outil compte sa caisse sans explication.
 
 **Paiement en ligne.** Un lien de billetterie ou de paiement (HelloAsso ou autre) par
 événement, affichable en QR code plein écran à poser sur la table, imprimable en affichette.
 
-**Sorties.** Impression avec cases de visa (comptée par, vérifiée par) et export CSV de
-l'événement complet, prêt à ouvrir dans un tableur français.
-
-![Suivi d'un événement](docs/apercu-evenement.png)
+![Écran de comptage](docs/apercu-comptage.png)
 
 ## Raccourcis clavier
 
