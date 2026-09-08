@@ -720,6 +720,7 @@
           <button class="btn" id="btnAgain">Nouveau comptage</button>
           <button class="btn" id="btnRecount">Reprendre le comptage</button>
           <button class="btn" id="btnPrintRec">Imprimer</button>
+          <button class="btn" id="btnCsvCount">Export CSV</button>
           <button class="btn" id="btnCopy">Copier le tableau</button>
         </div>
       </div>
@@ -1021,10 +1022,10 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
       event: "<em><kbd>P</kbd> saisir un encaissement</em><em><kbd>F</kbd> fond de caisse</em><em><kbd>C</kbd> clôturer</em><em><kbd>Échap</kbd> retour</em>",
       comptage: "<em><kbd>0</kbd> à <kbd>9</kbd> saisir</em><em><kbd>Entrée</kbd> valider et passer à la suivante</em><em><kbd>Retour arr.</kbd> corriger</em><em><kbd>Flèche haut</kbd> coupure précédente</em><em><kbd>Échap</kbd> voir le total</em>",
       recap: S.mode === "simple"
-        ? "<em><kbd>Entrée</kbd> nouveau comptage</em><em><kbd>Échap</kbd> accueil</em>"
+        ? "<em><kbd>Entrée</kbd> nouveau comptage</em><em><kbd>X</kbd> export CSV</em><em><kbd>Échap</kbd> accueil</em>"
         : "<em><kbd>Entrée</kbd> valider et revenir à l'événement</em><em><kbd>P</kbd> saisir les encaissements</em>"
           + (S.phase === "closing" ? "" : "<em><kbd>C</kbd> compter la clôture</em>")
-          + "<em><kbd>R</kbd> reprendre le comptage</em>"
+          + "<em><kbd>R</kbd> reprendre le comptage</em><em><kbd>X</kbd> export CSV</em>"
     };
     $("hints").innerHTML = h[S.screen] || "";
   }
@@ -1355,19 +1356,45 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
     return L.join("\r\n");
   }
 
-  function exportCsv() {
-    var e = ev();
-    if (!e) return;
-    var slug = e.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "caisse";
-    var blob = new Blob(["\ufeff" + buildCsv(e)], { type: "text/csv;charset=utf-8" });
+  function slugify(txt) {
+    return String(txt).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+  }
+
+  function downloadCsv(text, filename) {
+    var blob = new Blob(["\ufeff" + text], { type: "text/csv;charset=utf-8" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "caisse-" + slug + "-" + e.date + ".csv";
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
     toast("Fichier CSV téléchargé");
+  }
+
+  function exportCsv() {
+    var e = ev();
+    if (!e) return;
+    downloadCsv(buildCsv(e), "caisse-" + (slugify(e.name) || "caisse") + "-" + e.date + ".csv");
+  }
+
+  /* le comptage seul, tel qu'il est affiché au bilan */
+  function exportCountCsv() {
+    var e = S.mode === "simple" ? null : ev();
+    var today = new Date().toISOString().slice(0, 10);
+    var titre = S.mode === "simple" ? "Comptage de caisse"
+      : S.phase === "opening" ? "Fond de caisse" : "Comptage de clôture";
+    var L = [];
+    var row = function () { L.push(Array.prototype.slice.call(arguments).map(csvCell).join(";")); };
+    row("SimpleCaisse", titre, e ? e.name : "", frDate(e ? e.date : today));
+    row("");
+    row("Coupure", "Nombre", "Montant");
+    DENOMS.forEach(function (d, i) {
+      row(d.label, S.counts[i] || 0, csvAmount((S.counts[i] || 0) * d.c));
+    });
+    row("Total compté", "", csvAmount(totalOf(S.counts)));
+    downloadCsv(L.join("\r\n"),
+      "comptage-" + (e ? slugify(e.name) + "-" + e.date : today) + ".csv");
   }
 
   /* ================= comptage ================= */
@@ -1587,6 +1614,7 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
         else { S.idx = 0; show("comptage"); renderCount(); }
         return;
       }
+      if (e.key === "x" || e.key === "X") { e.preventDefault(); exportCountCsv(); return; }
       if (S.mode === "simple") return;
       if (e.key === "p" || e.key === "P") { e.preventDefault(); validateCount("pay"); return; }
       if (e.key === "c" || e.key === "C") { e.preventDefault(); validateCount("close"); return; }
@@ -1648,6 +1676,7 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
   $("btnToPay").addEventListener("click", function () { validateCount("pay"); });
   $("btnToClose").addEventListener("click", function () { validateCount("close"); });
   $("btnAgain").addEventListener("click", startSimple);
+  $("btnCsvCount").addEventListener("click", exportCountCsv);
   $("btnRecount").addEventListener("click", function () { S.idx = 0; show("comptage"); renderCount(); });
   $("btnCopy").addEventListener("click", function () {
     var txt = tsv();

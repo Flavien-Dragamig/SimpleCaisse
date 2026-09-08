@@ -30,8 +30,9 @@ La billetterie en ligne vous dit ce qui a été vendu sur internet ; elle ne vou
 si la caisse tombe juste. C'est ce chaînon qui manque partout.
 
 **Justificatif signé.** Impression avec cases de visa (comptée par, vérifiée par) et export
-CSV de l'événement complet, prêt à ouvrir dans un tableur français. De quoi archiver la
-recette d'une buvette et la présenter au trésorier ou en assemblée générale.
+CSV, prêt à ouvrir dans un tableur français : l'événement complet, ou le seul comptage quand
+on ne fait qu'un comptage simple. De quoi archiver la recette d'une buvette et la présenter
+au trésorier ou en assemblée générale.
 
 **Encaissements au fil de l'activité.** Client, objet, montant, moyen de paiement (espèces,
 carte, chèque, HelloAsso, autre). Un montant négatif compte comme une sortie de caisse. Les
