@@ -48,6 +48,18 @@ comptage en clair et en sombre, bilan de comptage, réconciliation, affichette Q
 planche des 15 coupures. Contenu du CSV vérifié par extraction du DOM. Syntaxe JS
 validée (`node --check`).
 
+## Publication
+- Dépôt public : https://github.com/Flavien-Dragamig/SimpleCaisse, licence MIT
+  (LICENSE au texte strict, composants tiers dans NOTICE.md).
+- En ligne : https://flavien-dragamig.github.io/SimpleCaisse/ (GitHub Pages, branche
+  `main` à la racine, `index.html` de redirection vers `SimpleCaisse.html`).
+- Section « À propos » dans la page et README avec le tableau des composants embarqués,
+  liens vers dragamig.fr et le profil LinkedIn.
+- Courriel de prise de contact avec HelloAsso rédigé : `docs/mail-helloasso.md`,
+  reste à envoyer via leur formulaire de contact, adresse produit inconnue.
+- Veille concurrentielle faite : rien ne réunit comptage, encaissements et
+  réconciliation. Ne pas mettre en avant la calculette de coupures, banale.
+
 ## Suite (raffinage)
 - Points ouverts : export CSV fichier, plusieurs caisses en parallèle sur un même
   événement, verrouillage d'un événement clôturé, hébergement (GitHub Pages ?).
