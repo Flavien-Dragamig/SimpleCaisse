@@ -74,6 +74,12 @@ IBM Plex Sans, IBM Plex Mono) et la génération des QR codes
 ([qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator), licence MIT)
 sont intégrées à la page : elle fonctionne à l'identique sans connexion.
 
+## Licence
+
+MIT, voir [LICENSE](LICENSE). Réutilisation, modification et usage commercial libres,
+en conservant la mention de copyright.
+
 ---
 
 Studio Dragamig, Flavien Mauny.
+Développé avec l'aide de Claude Code d'Anthropic.
