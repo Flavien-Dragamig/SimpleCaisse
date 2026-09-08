@@ -1311,47 +1311,61 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
   }
   function csvAmount(cents) { return (cents / 100).toFixed(2).replace(".", ","); }
 
-  function buildCsv(e) {
-    var L = [];
-    var row = function () { L.push(Array.prototype.slice.call(arguments).map(csvCell).join(";")); };
-    row("SimpleCaisse", e.name, frDate(e.date));
-    row("");
-    row("Fond de caisse");
-    row("Coupure", "Nombre", "Montant");
+  /* Toutes les sections partagent quatre colonnes : libellé, détail, précision,
+     montant. Les montants tombent donc toujours dans la même colonne du tableur
+     et restent sommables d'un bloc à l'autre. */
+  function csvCountBlock(row, titre, counts, labelTotal) {
+    row(titre);
+    row("Coupure", "Nombre", "Valeur unitaire", "Montant");
+    var nbB = 0, stB = 0, nbP = 0, stP = 0;
     DENOMS.forEach(function (d, i) {
-      var n = e.opening ? (e.opening.counts[i] || 0) : 0;
-      row(d.label, n, csvAmount(n * d.c));
+      var n = (counts && counts[i]) || 0;
+      row(d.label, n, csvAmount(d.c), csvAmount(n * d.c));
+      if (i < NB_NOTES) { nbB += n; stB += n * d.c; } else { nbP += n; stP += n * d.c; }
     });
-    row("Total fond de caisse", "", csvAmount(e.opening ? totalOf(e.opening.counts) : 0));
+    row("Sous-total billets", nbB, "", csvAmount(stB));
+    row("Sous-total pièces", nbP, "", csvAmount(stP));
+    row(labelTotal, nbB + nbP, "", csvAmount(stB + stP));
+  }
+
+  function csvRower(L) {
+    return function () {
+      L.push(Array.prototype.slice.call(arguments).map(csvCell).join(";"));
+    };
+  }
+
+  function buildCsv(e) {
+    var L = [], row = csvRower(L);
+    var r = reconData(e);
+    row("SimpleCaisse");
+    row("Événement", e.name);
+    row("Date", frDate(e.date));
     row("");
-    row("Encaissements et sorties");
+    csvCountBlock(row, "Fond de caisse", e.opening ? e.opening.counts : null, "Total fond de caisse");
+    row("");
+    row("Encaissements et sorties de caisse");
     row("Client", "Quoi", "Moyen", "Montant");
     (e.payments || []).forEach(function (p) {
       row(p.who, p.what, (METHODS[p.method] || METHODS.autre).label, csvAmount(p.cents));
     });
-    row("Total des opérations", "", "", csvAmount(evTotals(e).all));
-    row("");
+    row("Total des encaissements", "", "", csvAmount(r.gross));
+    row("Total des sorties de caisse", "", "", csvAmount(-r.spend));
+    row("Solde des opérations", "", "", csvAmount(r.gross - r.spend));
     if (e.closing) {
-      row("Comptage de clôture");
-      row("Coupure", "Nombre", "Montant");
-      DENOMS.forEach(function (d, i) {
-        var n = e.closing.counts[i] || 0;
-        row(d.label, n, csvAmount(n * d.c));
-      });
-      row("Total en caisse", "", csvAmount(totalOf(e.closing.counts)));
       row("");
-      var r = reconData(e);
+      csvCountBlock(row, "Comptage de clôture", e.closing.counts, "Total en caisse");
+      row("");
       row("Réconciliation");
-      row("Fond de caisse à l'ouverture", "", csvAmount(r.open));
-      row("Encaissements en espèces", "", csvAmount(r.cashIn));
-      row("Sorties de caisse en espèces", "", csvAmount(-r.cashOut));
-      row("Espèces attendues", "", csvAmount(r.expected));
-      row("Espèces comptées à la clôture", "", csvAmount(r.close));
-      row("Écart de caisse", r.gap === 0 ? "Caisse juste" : r.gap > 0 ? "Excédent" : "Manquant", csvAmount(r.gap));
-      row("Encaissements tous moyens", "", csvAmount(r.gross));
-      row("Dont hors espèces", "", csvAmount(r.other));
-      row("Dépenses réglées sur la caisse", "", csvAmount(-r.spend));
-      row("Résultat net de l'événement", "", csvAmount(r.gross - r.spend));
+      row("Fond de caisse à l'ouverture", "", "", csvAmount(r.open));
+      row("Encaissements en espèces", "", "", csvAmount(r.cashIn));
+      row("Sorties de caisse en espèces", "", "", csvAmount(-r.cashOut));
+      row("Espèces attendues", "", "", csvAmount(r.expected));
+      row("Espèces comptées à la clôture", "", "", csvAmount(r.close));
+      row("Écart de caisse", r.gap === 0 ? "Caisse juste" : r.gap > 0 ? "Excédent" : "Manquant", "", csvAmount(r.gap));
+      row("Encaissements tous moyens", "", "", csvAmount(r.gross));
+      row("Dont hors espèces", "", "", csvAmount(r.other));
+      row("Dépenses réglées sur la caisse", "", "", csvAmount(-r.spend));
+      row("Résultat net de l'événement", "", "", csvAmount(r.gross - r.spend));
     }
     return L.join("\r\n");
   }
@@ -1384,15 +1398,12 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
     var today = new Date().toISOString().slice(0, 10);
     var titre = S.mode === "simple" ? "Comptage de caisse"
       : S.phase === "opening" ? "Fond de caisse" : "Comptage de clôture";
-    var L = [];
-    var row = function () { L.push(Array.prototype.slice.call(arguments).map(csvCell).join(";")); };
-    row("SimpleCaisse", titre, e ? e.name : "", frDate(e ? e.date : today));
+    var L = [], row = csvRower(L);
+    row("SimpleCaisse");
+    if (e) row("Événement", e.name);
+    row("Date", frDate(e ? e.date : today));
     row("");
-    row("Coupure", "Nombre", "Montant");
-    DENOMS.forEach(function (d, i) {
-      row(d.label, S.counts[i] || 0, csvAmount((S.counts[i] || 0) * d.c));
-    });
-    row("Total compté", "", csvAmount(totalOf(S.counts)));
+    csvCountBlock(row, titre, S.counts, "Total compté");
     downloadCsv(L.join("\r\n"),
       "comptage-" + (e ? slugify(e.name) + "-" + e.date : today) + ".csv");
   }
