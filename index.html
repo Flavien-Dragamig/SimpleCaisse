@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Comptage et suivi de caisse pour les activites associatives : ouverture, cloture, calcul du chiffre d affaires en especes.">
+<meta name="theme-color" content="#1F4E9C">
+<title>Fond de Caisse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #E9ECF1;
+    --card: #FFFFFF;
+    --card-2: #F4F6F9;
+    --ink: #11141A;
+    --ink-2: #4B5361;
+    --ink-3: #7D8695;
+    --line: #D5DBE4;
+    --line-2: #E7EBF1;
+    --accent: #1F4E9C;
+    --accent-soft: #E4EBF7;
+    --seg: #1F4E9C;
+    --good: #17673F;
+    --good-soft: #DFF0E6;
+    --warn: #9A4A08;
+    --warn-soft: #FAEBDA;
+    --bad: #9E2020;
+    --bad-soft: #F8E3E3;
+    --shadow: 0 1px 2px rgba(17, 20, 26, .06), 0 8px 24px -12px rgba(17, 20, 26, .18);
+    --radius: 10px;
+    --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+    --font-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #0D1015;
+      --card: #171B22;
+      --card-2: #1E232C;
+      --ink: #EAEEF4;
+      --ink-2: #A6AFBD;
+      --ink-3: #6E7887;
+      --line: #2A313C;
+      --line-2: #222831;
+      --accent: #7FA8EE;
+      --accent-soft: #1B2739;
+      --good: #6FD3A0;
+      --good-soft: #14291F;
+      --warn: #E9A868;
+      --warn-soft: #2C2015;
+      --bad: #EC8B8B;
+      --bad-soft: #2E1919;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #0D1015;
+    --card: #171B22;
+    --card-2: #1E232C;
+    --ink: #EAEEF4;
+    --ink-2: #A6AFBD;
+    --ink-3: #6E7887;
+    --line: #2A313C;
+    --line-2: #222831;
+    --accent: #7FA8EE;
+    --accent-soft: #1B2739;
+    --good: #6FD3A0;
+    --good-soft: #14291F;
+    --warn: #E9A868;
+    --warn-soft: #2C2015;
+    --bad: #EC8B8B;
+    --bad-soft: #2E1919;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  .app {
+    min-height: 100vh;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ---------- barre de titre ---------- */
+  .bar { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: -.015em;
+    margin: 0;
+  }
+  .wordmark span { color: var(--accent); }
+  .bar-ctx { color: var(--ink-3); font-size: 13px; }
+  .bar-spacer { flex: 1; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .chip.is-cloture { background: var(--warn-soft); color: var(--warn); }
+  .chip.is-demo { background: var(--card-2); color: var(--ink-3); }
+
+  /* ---------- écrans ---------- */
+  .screen { display: flex; flex-direction: column; gap: 18px; }
+  .screen[hidden] { display: none; }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- accueil ---------- */
+  .hero { padding: 26px 26px 24px; }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4.4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1.05;
+    margin: 0 0 8px;
+    text-wrap: balance;
+  }
+  .hero p { margin: 0 0 22px; color: var(--ink-2); max-width: 56ch; }
+
+  .fields { display: grid; grid-template-columns: 1fr 170px; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 11.5px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .field input {
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    width: 100%;
+  }
+  .field input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+  .mode {
+    text-align: left;
+    background: var(--card-2);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex; flex-direction: column; gap: 3px;
+    transition: border-color .12s, background .12s;
+  }
+  .mode strong { font-size: 16px; font-weight: 600; }
+  .mode small { color: var(--ink-3); font-size: 12.5px; }
+  .mode kbd { margin-left: auto; }
+  .mode-head { display: flex; align-items: center; gap: 8px; }
+  .mode[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .mode[aria-pressed="true"] strong { color: var(--accent); }
+
+  .row-actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; flex-wrap: wrap; }
+
+  .btn {
+    border: 1px solid var(--line);
+    background: var(--card-2);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+  }
+  .btn:hover { border-color: var(--ink-3); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  :root[data-theme="dark"] .btn-primary, :root:not([data-theme="light"]) .btn-primary { color: var(--paper); }
+  .btn-primary:hover { filter: brightness(1.08); border-color: var(--accent); }
+
+  kbd {
+    font-family: var(--font-num);
+    font-size: 11px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 1px 5px;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  /* ---------- historique ---------- */
+  .history { padding: 18px 22px 20px; }
+  .history h2, .recap h2 {
+    font-family: var(--font-display);
+    font-size: 13px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 10px;
+  }
+  .hist-row {
+    display: grid;
+    grid-template-columns: 92px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    border-top: 1px solid var(--line-2);
+    cursor: pointer;
+  }
+  .hist-row:first-of-type { border-top: none; }
+  .hist-row:hover .hist-name { color: var(--accent); }
+  .hist-date { font-family: var(--font-num); font-size: 12.5px; color: var(--ink-3); }
+  .hist-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hist-total { font-family: var(--font-num); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .empty { color: var(--ink-3); font-size: 13.5px; }
+
+  /* ---------- comptage ---------- */
+  .rail { display: flex; gap: 3px; padding: 0 2px; }
+  .rail i {
+    flex: 1;
+    height: 5px;
+    border-radius: 2px;
+    background: var(--line);
+    transition: transform .15s;
+  }
+  .rail i.done { background: var(--seg); }
+  .rail i.now { background: var(--seg); transform: scaleY(2.4); }
+
+  .count {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 28px;
+    padding: 30px 30px 34px;
+  }
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .stage-label {
+    font-size: 11.5px; font-weight: 600; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+
+  .note {
+    width: min(280px, 100%);
+    aspect-ratio: 2 / 1;
+    border-radius: 8px;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.30) 0 2px, rgba(255,255,255,0) 2px 9px),
+      linear-gradient(150deg, var(--face) 0%, var(--face-2) 100%);
+    border: 1px solid rgba(0, 0, 0, .16);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, .55);
+  }
+  .note b {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 8vw, 64px);
+    font-weight: 800;
+    letter-spacing: -.04em;
+    color: var(--face-ink);
+  }
+  .coin {
+    width: min(190px, 60%);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: linear-gradient(150deg, var(--face) 0%, var(--face-2) 100%);
+    border: 1px solid rgba(0, 0, 0, .2);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 22px -14px rgba(0, 0, 0, .6);
+  }
+  .coin.bimetal { padding: 16px; }
+  .coin.bimetal > span {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: linear-gradient(150deg, var(--core) 0%, var(--core-2) 100%);
+    display: grid; place-items: center;
+  }
+  .coin b, .coin span b {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 5vw, 38px);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--face-ink);
+    text-align: center;
+    line-height: 1;
+  }
+  .coin b small { display: block; font-size: .42em; font-weight: 700; letter-spacing: .04em; }
+
+  .tally { display: flex; flex-direction: column; gap: 4px; }
+  .tally-eq {
+    display: flex; align-items: baseline; gap: 10px;
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+  }
+  .tally-input {
+    font-size: clamp(56px, 12vw, 88px);
+    font-weight: 600;
+    letter-spacing: -.04em;
+    line-height: 1;
+    min-width: 1.2ch;
+    color: var(--ink);
+  }
+  .tally-input.blank { color: var(--ink-3); }
+  .tally-input::after {
+    content: "";
+    display: inline-block;
+    width: 3px; height: .82em;
+    margin-left: 3px;
+    background: var(--seg);
+    vertical-align: baseline;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .tally-x { font-size: 20px; color: var(--ink-3); }
+  .tally-sub {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    font-size: 20px;
+    color: var(--ink-2);
+  }
+  .tally-sub b { color: var(--ink); font-weight: 600; }
+  .tally-run {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-2);
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 13px; color: var(--ink-3);
+  }
+  .tally-run b {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    font-size: 17px; font-weight: 600; color: var(--ink);
+  }
+
+  /* ---------- pavé ---------- */
+  .pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 300px;
+    margin-top: 18px;
+  }
+  .pad button {
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 0;
+    font-family: var(--font-num);
+    font-size: 17px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .pad button:active { background: var(--accent-soft); }
+  .pad .k-enter { grid-column: span 2; background: var(--accent); border-color: var(--accent); color: #fff; font-family: var(--font-ui); font-weight: 600; font-size: 14px; }
+  :root[data-theme="dark"] .pad .k-enter, :root:not([data-theme="light"]) .pad .k-enter { color: var(--paper); }
+
+  /* ---------- récapitulatif ---------- */
+  .recap { padding: 24px 26px 26px; }
+  .recap-head { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .recap-head h1 {
+    font-family: var(--font-display);
+    font-size: 27px; font-weight: 700; letter-spacing: -.025em;
+    margin: 0;
+  }
+  .recap-head .sub { color: var(--ink-3); font-size: 13.5px; }
+  .grand {
+    margin-left: auto; text-align: right;
+  }
+  .grand small { display: block; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .grand b {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    font-size: 32px; font-weight: 600; letter-spacing: -.02em;
+  }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  table { width: 100%; border-collapse: collapse; }
+  caption {
+    text-align: left;
+    font-size: 11.5px; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3);
+    padding-bottom: 6px;
+  }
+  th, td { padding: 5px 0; text-align: right; font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 11px; font-weight: 600; color: var(--ink-3); border-bottom: 1px solid var(--line); letter-spacing: .04em; }
+  tbody td { font-family: var(--font-num); font-size: 13.5px; border-bottom: 1px solid var(--line-2); }
+  tbody td:first-child { font-weight: 500; }
+  tbody tr.zero td { color: var(--ink-3); }
+  tfoot td { padding-top: 8px; font-family: var(--font-num); font-weight: 600; font-size: 14px; }
+
+  .ledger { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 2px; }
+  .led-row { display: flex; align-items: baseline; gap: 12px; padding: 5px 0; }
+  .led-row span { color: var(--ink-2); }
+  .led-row b { margin-left: auto; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .led-row.result { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; }
+  .led-row.result span { color: var(--ink); font-weight: 600; }
+  .led-row.result b { font-size: 20px; }
+  .led-row .flag { font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 0; }
+  .flag.ok { background: var(--good-soft); color: var(--good); }
+  .flag.ko { background: var(--bad-soft); color: var(--bad); }
+  .ledger input {
+    width: 110px; text-align: right;
+    font-family: var(--font-num); font-variant-numeric: tabular-nums;
+    background: var(--card-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 8px;
+    margin-left: auto;
+  }
+
+  .signatures { display: none; }
+
+  /* ---------- pied ---------- */
+  .hints {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding: 11px 4px 13px;
+    background: linear-gradient(to bottom, transparent, var(--paper) 40%);
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+  .hints em { font-style: normal; }
+  .toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    background: var(--ink); color: var(--paper);
+    padding: 9px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transition: opacity .18s;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+  @media (max-width: 760px) {
+    .count { grid-template-columns: 1fr; gap: 20px; padding: 22px; }
+    .cols { grid-template-columns: 1fr; gap: 20px; }
+    .fields { grid-template-columns: 1fr; }
+    .modes { grid-template-columns: 1fr; }
+    .pad { max-width: none; }
+  }
+
+  @media print {
+    :root { --paper: #fff; --card: #fff; --ink: #000; --ink-2: #333; --ink-3: #555; --line: #999; --line-2: #ccc; }
+    .app { max-width: none; padding: 0; }
+    .bar, .hints, .recap-actions, .toast { display: none !important; }
+    .panel { border: none; box-shadow: none; }
+    .signatures {
+      display: flex; gap: 60px; margin-top: 44px;
+      font-size: 12px; color: #333;
+    }
+    .signatures div { flex: 1; border-top: 1px solid #999; padding-top: 6px; }
+  }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <p class="wordmark">Fond de <span>Caisse</span></p>
+    <span class="bar-ctx" id="barCtx"></span>
+    <span class="bar-spacer"></span>
+    <span class="bar-ctx" id="barStep"></span>
+  </header>
+
+  <main>
+    <!-- ============ ACCUEIL ============ -->
+    <section class="screen" id="scrAccueil">
+      <div class="panel hero">
+        <h1>Compter la caisse, sans se tromper.</h1>
+        <p>Une coupure par écran, du plus gros billet à la plus petite pièce. On saisit le nombre au pavé numérique, <kbd>Entrée</kbd> passe à la suivante. Le total se fait tout seul.</p>
+
+        <div class="fields">
+          <div class="field">
+            <label for="fEvent">Activité</label>
+            <input id="fEvent" type="text" placeholder="Buvette du tournoi, brocante, loto..." autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="fDate">Date</label>
+            <input id="fDate" type="date">
+          </div>
+        </div>
+
+        <div class="modes">
+          <button class="mode" id="modeOuverture" aria-pressed="true">
+            <span class="mode-head"><strong>Ouverture</strong><kbd>O</kbd></span>
+            <small>Fond de caisse avant le début de l'activité.</small>
+          </button>
+          <button class="mode" id="modeCloture" aria-pressed="false">
+            <span class="mode-head"><strong>Clôture</strong><kbd>C</kbd></span>
+            <small>Comptage final, la recette se calcule seule.</small>
+          </button>
+        </div>
+
+        <div class="row-actions">
+          <button class="btn btn-primary" id="btnStart">Commencer le comptage</button>
+          <span class="bar-ctx"><kbd>Entrée</kbd> pour démarrer, <kbd>Tab</kbd> pour circuler</span>
+        </div>
+      </div>
+
+      <div class="panel history">
+        <h2>Caisses enregistrées</h2>
+        <div id="histList"></div>
+      </div>
+    </section>
+
+    <!-- ============ COMPTAGE ============ -->
+    <section class="screen" id="scrComptage" hidden>
+      <div class="rail" id="rail"></div>
+      <div class="panel count">
+        <div class="stage">
+          <span class="stage-label" id="stageLabel"></span>
+          <div id="stageArt"></div>
+        </div>
+        <div>
+          <div class="tally">
+            <div class="tally-eq">
+              <span class="tally-input blank" id="tallyInput">0</span>
+              <span class="tally-x">×</span>
+              <span class="tally-sub" id="tallyUnit"></span>
+            </div>
+            <div class="tally-eq">
+              <span class="tally-sub">= <b id="tallySub">0,00 €</b></span>
+            </div>
+          </div>
+          <div class="tally-run">Total compté jusqu'ici <b id="tallyRun">0,00 €</b></div>
+          <div class="pad" id="pad"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RÉCAPITULATIF ============ -->
+    <section class="screen" id="scrRecap" hidden>
+      <div class="panel recap">
+        <div class="recap-head">
+          <div>
+            <h1 id="recTitle">Récapitulatif</h1>
+            <div class="sub" id="recSub"></div>
+          </div>
+          <div class="grand">
+            <small>Total en caisse</small>
+            <b id="recTotal">0,00 €</b>
+          </div>
+        </div>
+
+        <div class="cols">
+          <table id="tblBillets"><caption>Billets</caption>
+            <thead><tr><th>Coupure</th><th>Nombre</th><th>Montant</th></tr></thead>
+            <tbody></tbody>
+            <tfoot><tr><td>Sous-total billets</td><td id="nbBillets"></td><td id="stBillets"></td></tr></tfoot>
+          </table>
+          <table id="tblPieces"><caption>Pièces</caption>
+            <thead><tr><th>Valeur</th><th>Nombre</th><th>Montant</th></tr></thead>
+            <tbody></tbody>
+            <tfoot><tr><td>Sous-total pièces</td><td id="nbPieces"></td><td id="stPieces"></td></tr></tfoot>
+          </table>
+        </div>
+
+        <div class="ledger" id="ledger"></div>
+
+        <div class="signatures">
+          <div>Comptée par</div>
+          <div>Vérifiée par</div>
+          <div>Date et signature</div>
+        </div>
+
+        <div class="row-actions recap-actions">
+          <button class="btn btn-primary" id="btnSave">Enregistrer</button>
+          <button class="btn" id="btnPrint">Imprimer</button>
+          <button class="btn" id="btnCopy">Copier le tableau</button>
+          <button class="btn" id="btnBack">Corriger</button>
+          <button class="btn" id="btnNew">Nouvelle caisse</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="hints" id="hints"></footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- données ---------------- */
+  var DENOMS = [
+    { c: 50000, kind: "billet", face: "#C9AEDC", face2: "#AE8FC6", ink: "#3E2757", label: "500 €" },
+    { c: 20000, kind: "billet", face: "#E9CE86", face2: "#D3B25F", ink: "#4E3A10", label: "200 €" },
+    { c: 10000, kind: "billet", face: "#B6D294", face2: "#94B96F", ink: "#2C401B", label: "100 €" },
+    { c: 5000,  kind: "billet", face: "#F3BC7E", face2: "#E09E52", ink: "#4E3111", label: "50 €" },
+    { c: 2000,  kind: "billet", face: "#9FC0E4", face2: "#7BA0CC", ink: "#1D3350", label: "20 €" },
+    { c: 1000,  kind: "billet", face: "#E5A2A2", face2: "#CE7E7E", ink: "#4C1C1C", label: "10 €" },
+    { c: 500,   kind: "billet", face: "#D6D8DC", face2: "#B9BCC2", ink: "#33363B", label: "5 €" },
+    { c: 200,   kind: "bimetal", face: "#D8D9DB", face2: "#B7B9BD", core: "#E3C979", core2: "#C7A94F", ink: "#4A3C12", label: "2 €" },
+    { c: 100,   kind: "bimetal", face: "#E3C979", face2: "#C7A94F", core: "#D8D9DB", core2: "#B7B9BD", ink: "#3B3D42", label: "1 €" },
+    { c: 50,    kind: "piece", face: "#E5C878", face2: "#C4A44B", ink: "#453714", label: "50 cent" },
+    { c: 20,    kind: "piece", face: "#E5C878", face2: "#C4A44B", ink: "#453714", label: "20 cent" },
+    { c: 10,    kind: "piece", face: "#E5C878", face2: "#C4A44B", ink: "#453714", label: "10 cent" },
+    { c: 5,     kind: "piece", face: "#D79A78", face2: "#B87352", ink: "#4A2417", label: "5 cent" },
+    { c: 2,     kind: "piece", face: "#D79A78", face2: "#B87352", ink: "#4A2417", label: "2 cent" },
+    { c: 1,     kind: "piece", face: "#D79A78", face2: "#B87352", ink: "#4A2417", label: "1 cent" }
+  ];
+  var NB_BILLETS = 7;
+  var KEY = "fdc.sessions.v1";
+
+  var DEMO = {
+    id: "demo",
+    demo: true,
+    event: "Buvette du tournoi (exemple)",
+    date: "2026-09-05",
+    type: "cloture",
+    counts: [0, 0, 1, 3, 11, 14, 9, 22, 17, 12, 9, 14, 0, 3, 6],
+    expected: null
+  };
+
+  /* ---------------- état ---------------- */
+  var S = {
+    screen: "accueil",
+    event: "",
+    date: "",
+    type: "ouverture",
+    idx: 0,
+    counts: DENOMS.map(function () { return null; }),
+    buffer: "",
+    viewing: null,
+    openingRef: null
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------- formatage ---------------- */
+  function euros(cents) {
+    var neg = cents < 0;
+    var v = Math.abs(cents);
+    var s = (v / 100).toFixed(2).replace(".", ",");
+    s = s.replace(/\B(?=(\d{3})+(?!\d)(?=,))/g, " ");
+    return (neg ? "-" : "") + s + " €";
+  }
+  function frDate(iso) {
+    if (!iso) return "";
+    var p = iso.split("-");
+    return p[2] + "/" + p[1] + "/" + p[0];
+  }
+  function totalOf(counts) {
+    return counts.reduce(function (t, n, i) { return t + (n || 0) * DENOMS[i].c; }, 0);
+  }
+
+  /* ---------------- stockage ---------------- */
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+  function save(list) {
+    try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) { toast("Sauvegarde impossible sur cet appareil"); }
+  }
+  function sessions() {
+    var l = load();
+    return l.length ? l : [DEMO];
+  }
+
+  var toastT;
+  function toast(msg) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { t.classList.remove("show"); }, 2200);
+  }
+
+  /* ---------------- navigation d'écran ---------------- */
+  function show(name) {
+    S.screen = name;
+    $("scrAccueil").hidden = name !== "accueil";
+    $("scrComptage").hidden = name !== "comptage";
+    $("scrRecap").hidden = name !== "recap";
+    renderBar();
+    renderHints();
+    window.scrollTo(0, 0);
+  }
+
+  function renderBar() {
+    var ctx = "";
+    if (S.screen !== "accueil") {
+      var d = S.viewing || S;
+      ctx = (d.event || "Caisse") + " · " + frDate(d.date);
+    }
+    $("barCtx").innerHTML = ctx ? esc(ctx) + ' <span class="chip ' + ((S.viewing || S).type === "cloture" ? "is-cloture" : "") + '">' + ((S.viewing || S).type === "cloture" ? "Clôture" : "Ouverture") + "</span>" : "";
+    if (S.screen === "comptage") {
+      var d2 = DENOMS[S.idx];
+      $("barStep").textContent = (d2.kind === "billet" ? "Billet " + (S.idx + 1) + " sur " + NB_BILLETS : "Pièce " + (S.idx - NB_BILLETS + 1) + " sur " + (DENOMS.length - NB_BILLETS));
+    } else {
+      $("barStep").textContent = "";
+    }
+  }
+
+  function renderHints() {
+    var h = {
+      accueil: "<em><kbd>O</kbd> ouverture · <kbd>C</kbd> clôture</em><em><kbd>Entrée</kbd> commencer</em>",
+      comptage: "<em><kbd>0</kbd>–<kbd>9</kbd> saisir</em><em><kbd>Entrée</kbd> valider et passer à la suivante</em><em><kbd>⌫</kbd> corriger</em><em><kbd>↑</kbd> coupure précédente</em><em><kbd>Échap</kbd> voir le total</em>",
+      recap: "<em><kbd>Entrée</kbd> enregistrer</em><em><kbd>Échap</kbd> revenir au comptage</em>"
+    };
+    $("hints").innerHTML = h[S.screen] || "";
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  /* ---------------- accueil ---------------- */
+  function setType(t) {
+    S.type = t;
+    $("modeOuverture").setAttribute("aria-pressed", String(t === "ouverture"));
+    $("modeCloture").setAttribute("aria-pressed", String(t === "cloture"));
+  }
+
+  function renderHistory() {
+    var list = sessions().slice().sort(function (a, b) {
+      return (b.date + b.id).localeCompare(a.date + a.id);
+    });
+    var box = $("histList");
+    if (!list.length) {
+      box.innerHTML = '<p class="empty">Aucune caisse enregistrée pour le moment.</p>';
+      return;
+    }
+    box.innerHTML = list.map(function (s) {
+      return '<div class="hist-row" data-id="' + esc(s.id) + '" tabindex="0" role="button">' +
+        '<span class="hist-date">' + frDate(s.date) + "</span>" +
+        '<span class="hist-name">' + esc(s.event || "Sans nom") + "</span>" +
+        '<span class="chip ' + (s.demo ? "is-demo" : s.type === "cloture" ? "is-cloture" : "") + '">' + (s.demo ? "Exemple" : s.type === "cloture" ? "Clôture" : "Ouverture") + "</span>" +
+        '<span class="hist-total">' + euros(totalOf(s.counts)) + "</span>" +
+        "</div>";
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll(".hist-row"), function (row) {
+      var open = function () {
+        var s = sessions().filter(function (x) { return x.id === row.getAttribute("data-id"); })[0];
+        if (s) openSaved(s);
+      };
+      row.addEventListener("click", open);
+      row.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
+  }
+
+  function start() {
+    S.event = $("fEvent").value.trim() || "Caisse";
+    S.date = $("fDate").value || new Date().toISOString().slice(0, 10);
+    S.counts = DENOMS.map(function () { return null; });
+    S.idx = 0;
+    S.buffer = "";
+    S.viewing = null;
+    S.expected = null;
+    S.openingRef = S.type === "cloture" ? findOpening(S.event) : null;
+    show("comptage");
+    renderCount();
+  }
+
+  function findOpening(name) {
+    var key = name.trim().toLowerCase();
+    var l = load().filter(function (s) {
+      return s.type === "ouverture" && (s.event || "").trim().toLowerCase() === key;
+    });
+    l.sort(function (a, b) { return (a.date + a.id).localeCompare(b.date + b.id); });
+    return l.length ? l[l.length - 1] : null;
+  }
+
+  /* ---------------- comptage ---------------- */
+  function renderCount() {
+    var d = DENOMS[S.idx];
+    document.documentElement.style.setProperty("--seg", d.face2);
+
+    $("rail").innerHTML = DENOMS.map(function (x, i) {
+      var cls = i === S.idx ? "now" : (S.counts[i] !== null ? "done" : "");
+      return '<i class="' + cls + '" style="--seg:' + x.face2 + '"></i>';
+    }).join("");
+
+    $("stageLabel").textContent = d.kind === "billet" ? "Billets de" : "Pièces de";
+
+    var art;
+    if (d.kind === "billet") {
+      art = '<div class="note" style="--face:' + d.face + ';--face-2:' + d.face2 + ';--face-ink:' + d.ink + '"><b>' + d.label.replace(" €", "") + " €</b></div>";
+    } else if (d.kind === "bimetal") {
+      art = '<div class="coin bimetal" style="--face:' + d.face + ';--face-2:' + d.face2 + ';--core:' + d.core + ';--core-2:' + d.core2 + ';--face-ink:' + d.ink + '"><span><b>' + d.label + "</b></span></div>";
+    } else {
+      var parts = d.label.split(" ");
+      art = '<div class="coin" style="--face:' + d.face + ';--face-2:' + d.face2 + ';--face-ink:' + d.ink + '"><b>' + parts[0] + "<small>CENT</small></b></div>";
+    }
+    $("stageArt").innerHTML = art;
+
+    $("tallyUnit").textContent = d.label;
+    var val = S.buffer === "" ? (S.counts[S.idx] === null ? "" : String(S.counts[S.idx])) : S.buffer;
+    var ti = $("tallyInput");
+    ti.textContent = val === "" ? "0" : val;
+    ti.classList.toggle("blank", val === "");
+    var n = parseInt(val || "0", 10);
+    $("tallySub").textContent = euros(n * d.c);
+    $("tallyRun").textContent = euros(running());
+    renderBar();
+  }
+
+  function running() {
+    var t = 0;
+    for (var i = 0; i < DENOMS.length; i++) {
+      var n = i === S.idx && S.buffer !== "" ? parseInt(S.buffer, 10) : S.counts[i];
+      t += (n || 0) * DENOMS[i].c;
+    }
+    return t;
+  }
+
+  function commit() {
+    if (S.buffer !== "") S.counts[S.idx] = parseInt(S.buffer, 10);
+    else if (S.counts[S.idx] === null) S.counts[S.idx] = 0;
+    S.buffer = "";
+  }
+
+  function goNext() {
+    commit();
+    if (S.idx >= DENOMS.length - 1) { openRecap(); return; }
+    S.idx++;
+    renderCount();
+  }
+  function goPrev() {
+    commit();
+    if (S.idx === 0) return;
+    S.idx--;
+    S.buffer = "";
+    renderCount();
+  }
+
+  function typeDigit(ch) {
+    if (S.buffer.length >= 4) return;
+    if (S.buffer === "" && ch === "0") { S.buffer = "0"; renderCount(); return; }
+    S.buffer = (S.buffer === "0" ? "" : S.buffer) + ch;
+    renderCount();
+  }
+  function backspace() {
+    if (S.buffer !== "") S.buffer = S.buffer.slice(0, -1);
+    else if (S.counts[S.idx] !== null) { S.buffer = String(S.counts[S.idx]).slice(0, -1); S.counts[S.idx] = null; }
+    renderCount();
+  }
+
+  function buildPad() {
+    var keys = ["7", "8", "9", "4", "5", "6", "1", "2", "3", "0", "⌫", "↵ Valider"];
+    $("pad").innerHTML = keys.map(function (k) {
+      if (k.indexOf("Valider") > -1) return '<button class="k-enter" data-k="enter">' + k + "</button>";
+      if (k === "⌫") return '<button data-k="back">' + k + "</button>";
+      return '<button data-k="' + k + '">' + k + "</button>";
+    }).join("");
+    $("pad").addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b) return;
+      var k = b.getAttribute("data-k");
+      if (k === "enter") goNext();
+      else if (k === "back") backspace();
+      else typeDigit(k);
+    });
+  }
+
+  /* ---------------- récapitulatif ---------------- */
+  function currentSession() {
+    return S.viewing || {
+      id: S.id || null,
+      event: S.event,
+      date: S.date,
+      type: S.type,
+      counts: S.counts.map(function (n) { return n || 0; }),
+      expected: S.expected
+    };
+  }
+
+  function openRecap() {
+    commit();
+    S.viewing = null;
+    show("recap");
+    renderRecap(currentSession());
+  }
+
+  function openSaved(s) {
+    S.viewing = s;
+    S.openingRef = s.type === "cloture" ? findOpening(s.event) : null;
+    show("recap");
+    renderRecap(s);
+  }
+
+  function fillTable(tbl, from, to, s) {
+    var body = tbl.querySelector("tbody");
+    var rows = "", nb = 0, st = 0;
+    for (var i = from; i < to; i++) {
+      var n = s.counts[i] || 0;
+      nb += n; st += n * DENOMS[i].c;
+      rows += '<tr class="' + (n ? "" : "zero") + '"><td>' + DENOMS[i].label + "</td><td>" + n + "</td><td>" + euros(n * DENOMS[i].c) + "</td></tr>";
+    }
+    body.innerHTML = rows;
+    return { nb: nb, st: st };
+  }
+
+  function renderRecap(s) {
+    $("recTitle").textContent = s.type === "cloture" ? "Clôture de caisse" : "Ouverture de caisse";
+    $("recSub").textContent = (s.event || "Caisse") + " · " + frDate(s.date);
+
+    var b = fillTable($("tblBillets"), 0, NB_BILLETS, s);
+    var p = fillTable($("tblPieces"), NB_BILLETS, DENOMS.length, s);
+    $("nbBillets").textContent = b.nb;
+    $("stBillets").textContent = euros(b.st);
+    $("nbPieces").textContent = p.nb;
+    $("stPieces").textContent = euros(p.st);
+
+    var total = b.st + p.st;
+    $("recTotal").textContent = euros(total);
+
+    var L = [];
+    if (s.type === "cloture") {
+      var fond = S.openingRef ? totalOf(S.openingRef.counts) : 0;
+      L.push('<div class="led-row"><span>Fond de caisse à l\'ouverture' + (S.openingRef ? " (" + frDate(S.openingRef.date) + ")" : ", non trouvé") + "</span><b>" + euros(fond) + "</b></div>");
+      L.push('<div class="led-row"><span>Total compté à la clôture</span><b>' + euros(total) + "</b></div>");
+      L.push('<div class="led-row result"><span>Chiffre d\'affaires en espèces</span><b>' + euros(total - fond) + "</b></div>");
+      var exp = s.expected;
+      L.push('<div class="led-row"><span>CA attendu (tickets, ventes)</span><input id="fExpected" type="text" inputmode="decimal" placeholder="0,00" value="' + (exp === null || exp === undefined ? "" : String(exp / 100).replace(".", ",")) + '"></div>');
+      if (exp !== null && exp !== undefined) {
+        var ecart = (total - fond) - exp;
+        L.push('<div class="led-row result"><span>Écart de caisse</span><span class="flag ' + (ecart === 0 ? "ok" : "ko") + '">' + (ecart === 0 ? "Caisse juste" : ecart > 0 ? "Excédent" : "Manquant") + "</span><b>" + euros(ecart) + "</b></div>");
+      }
+    } else {
+      L.push('<div class="led-row result"><span>Fond de caisse constitué</span><b>' + euros(total) + "</b></div>");
+      L.push('<div class="led-row"><span>Ce montant sera déduit au comptage de clôture pour obtenir le CA.</span></div>');
+    }
+    $("ledger").innerHTML = L.join("");
+
+    var fe = $("fExpected");
+    if (fe) {
+      fe.addEventListener("change", function () {
+        var v = fe.value.replace(/\s/g, "").replace(",", ".");
+        var cents = v === "" ? null : Math.round(parseFloat(v) * 100);
+        if (cents !== null && isNaN(cents)) { toast("Montant non reconnu"); return; }
+        if (S.viewing) {
+          S.viewing.expected = cents;
+          var l = load();
+          for (var i = 0; i < l.length; i++) if (l[i].id === S.viewing.id) l[i].expected = cents;
+          save(l);
+          renderRecap(S.viewing);
+        } else {
+          S.expected = cents;
+          renderRecap(currentSession());
+        }
+      });
+    }
+  }
+
+  function saveCurrent() {
+    var s = currentSession();
+    var l = load();
+    if (!s.id) {
+      s.id = String(Date.now());
+      S.id = s.id;
+      l.push(s);
+    } else {
+      var found = false;
+      for (var i = 0; i < l.length; i++) if (l[i].id === s.id) { l[i] = s; found = true; }
+      if (!found) l.push(s);
+    }
+    save(l);
+    S.viewing = s;
+    toast("Caisse enregistrée");
+    renderHistory();
+  }
+
+  function tsv() {
+    var s = currentSession();
+    var out = [(s.type === "cloture" ? "Clôture" : "Ouverture") + " de caisse\t" + s.event + "\t" + frDate(s.date), "Coupure\tNombre\tMontant"];
+    DENOMS.forEach(function (d, i) {
+      out.push(d.label + "\t" + (s.counts[i] || 0) + "\t" + euros((s.counts[i] || 0) * d.c));
+    });
+    out.push("Total\t\t" + euros(totalOf(s.counts)));
+    return out.join("\n");
+  }
+
+  /* ---------------- clavier global ---------------- */
+  document.addEventListener("keydown", function (e) {
+    var tag = (e.target.tagName || "").toLowerCase();
+    var inField = tag === "input" || tag === "textarea";
+
+    if (S.screen === "accueil") {
+      if (e.key === "Enter") { e.preventDefault(); start(); return; }
+      if (!inField && (e.key === "o" || e.key === "O")) { setType("ouverture"); return; }
+      if (!inField && (e.key === "c" || e.key === "C")) { setType("cloture"); return; }
+      return;
+    }
+
+    if (S.screen === "comptage") {
+      if (e.key >= "0" && e.key <= "9") { e.preventDefault(); typeDigit(e.key); return; }
+      if (e.key === "Enter" || e.key === "+" || e.key === "ArrowDown" || e.key === "ArrowRight" || e.key === "Tab" && !e.shiftKey) { e.preventDefault(); goNext(); return; }
+      if (e.key === "Backspace") { e.preventDefault(); backspace(); return; }
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft" || (e.key === "Tab" && e.shiftKey)) { e.preventDefault(); goPrev(); return; }
+      if (e.key === "Escape") { e.preventDefault(); openRecap(); return; }
+      return;
+    }
+
+    if (S.screen === "recap") {
+      if (inField) return;
+      if (e.key === "Enter") { e.preventDefault(); saveCurrent(); return; }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (S.viewing && S.viewing.id === "demo") { show("accueil"); return; }
+        show("comptage");
+        renderCount();
+      }
+    }
+  });
+
+  /* ---------------- branchements ---------------- */
+  $("modeOuverture").addEventListener("click", function () { setType("ouverture"); });
+  $("modeCloture").addEventListener("click", function () { setType("cloture"); });
+  $("btnStart").addEventListener("click", start);
+  $("btnSave").addEventListener("click", saveCurrent);
+  $("btnBack").addEventListener("click", function () {
+    if (S.viewing) { S.counts = S.viewing.counts.slice(); S.event = S.viewing.event; S.date = S.viewing.date; S.type = S.viewing.type; S.id = S.viewing.id === "demo" ? null : S.viewing.id; S.viewing = null; }
+    S.idx = 0; S.buffer = "";
+    show("comptage");
+    renderCount();
+  });
+  $("btnNew").addEventListener("click", function () {
+    S.viewing = null; S.id = null; S.expected = null;
+    $("fEvent").value = "";
+    renderHistory();
+    show("accueil");
+    $("fEvent").focus();
+  });
+  $("btnPrint").addEventListener("click", function () {
+    try { window.print(); } catch (err) { toast("Impression indisponible ici, ouvrez le fichier local"); }
+  });
+  $("btnCopy").addEventListener("click", function () {
+    var txt = tsv();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { toast("Tableau copié, collez-le dans un tableur"); },
+        function () { toast("Copie refusée par le navigateur"); });
+    } else { toast("Copie non disponible sur ce navigateur"); }
+  });
+
+  /* ---------------- démarrage ---------------- */
+  $("fDate").value = new Date().toISOString().slice(0, 10);
+  setType("ouverture");
+  buildPad();
+  renderHistory();
+  show("accueil");
+})();
+</script>
+</body>
+</html>
